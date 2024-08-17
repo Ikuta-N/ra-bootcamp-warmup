@@ -1,4 +1,5 @@
 library(tidyverse)
+library(readxl)
 
 #1
 #データの読み込み
@@ -53,11 +54,15 @@ Covariates_Data <- read_xlsx("raw/covariates/covariates.xlsx") %>%
   group_by(unitid, year) %>% 
   pivot_wider(names_from = category, values_from = value) %>% 
   ungroup() %>% 
-  filter(year %in% (min(graduate_data$year) : max(graduate_data$year)) | year %in% (min(semdata$year) : max(semdata$year))) %>% 
-  filter(unitid %in% graduate_data$unitid)
+  filter(year %in% graduate_data$year | year %in% semdata$year) %>% 
+  filter(unitid %in% graduate_data$unitid) %>% 
+  mutate(year = as.numeric(year))
 
+#4
 
-
+master_data <- left_join(semdata, graduate_data, by = c("unitid","year")) %>% 
+  left_join(Covariates_Data, by = c("unitid","year"))
+write_csv(master_data, file = "02_analysis/intermid/master_data.csv")
 
 
 
