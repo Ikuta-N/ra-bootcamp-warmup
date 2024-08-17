@@ -13,6 +13,8 @@ colnames(semdata_joined) <- semdata_joined[1,]
 semdata <- semdata_joined[-1,] %>%
   mutate(semester = as.numeric(semester)) %>% 
   mutate(quarter = as.numeric(quarter)) %>%
+  mutate(unitid = as.numeric(unitid)) %>% 
+  mutate(year = as.numeric(year)) %>% 
   group_by(unitid) %>% 
   mutate(onlysemester = prod(semester)) %>% 
   mutate(onlyquarter = prod(quarter)) %>% 
@@ -43,6 +45,16 @@ graduate_data <- graduate_data %>%
   mutate(men_gradrate_4yr = format(men_gradrate_4yr, digits = 3)) %>% 
   filter(year %in% (1991:2010))
 
+#3
+
+Covariates_Data <- read_xlsx("raw/covariates/covariates.xlsx") %>% 
+  rename(unitid = university_id) %>% 
+  mutate(unitid = as.numeric(str_remove(unitid,"aaaa"))) %>% 
+  group_by(unitid, year) %>% 
+  pivot_wider(names_from = category, values_from = value) %>% 
+  ungroup() %>% 
+  filter(year %in% (min(graduate_data$year) : max(graduate_data$year)) | year %in% (min(semdata$year) : max(semdata$year))) %>% 
+  filter(unitid %in% graduate_data$unitid)
 
 
 
